@@ -53,15 +53,19 @@ export function WordCard({ word }: WordCardProps) {
   if (!word) return null;
 
   return (
-    <View className="bg-card rounded-lg p-6 shadow-lg">
-      <View className="flex-row justify-between items-center mb-4">
+    <View className="bg-card rounded-lg p-6 border border-border shadow-sm dark:shadow-primary/5">
+      <View className="flex-row justify-between items-center">
         <View className="flex-1">
           <Text className="text-2xl font-bold text-card-foreground">{word.word}</Text>
-          {word.phonetic && <Text className="text-sm text-muted-foreground">{word.phonetic}</Text>}
+          {word.phonetic && <Text className="text-sm text-muted-foreground mt-1">{word.phonetic}</Text>}
         </View>
         <View className="flex-row space-x-4">
           {word.audioUrl && (
-            <Pressable onPress={playSound} disabled={isPlaying} className="p-2">
+            <Pressable 
+              onPress={playSound} 
+              disabled={isPlaying} 
+              className="p-2 rounded-full hover:bg-muted active:bg-muted/80"
+            >
               {isPlaying ? (
                 <ActivityIndicator size="small" color="#3B82F6" />
               ) : (
@@ -69,22 +73,39 @@ export function WordCard({ word }: WordCardProps) {
               )}
             </Pressable>
           )}
-          <Pressable onPress={handleBookmarkPress} className="p-2">
+          <Pressable 
+            onPress={handleBookmarkPress} 
+            className="p-2 rounded-full hover:bg-muted active:bg-muted/80"
+          >
             {isBookmarked ? <BookmarkSolidIcon size={24} fill="#3B82F6" /> : <BookmarkIcon size={24} stroke="#666" />}
           </Pressable>
         </View>
       </View>
 
+      <View className="h-px bg-border my-4" />
+
       {word.meanings?.map((meaning, index) => (
-        <View key={index} className="mt-6">
-          <Text className="text-sm font-medium text-primary mb-2">{meaning.partOfSpeech}</Text>
-          <Text className="text-card-foreground">{meaning.definition}</Text>
-          {meaning.example && <Text className="text-muted-foreground mt-2 italic">"{meaning.example}"</Text>}
+        <View key={index} className="mt-4 first:mt-0">
+          <Text className="text-sm font-semibold text-primary mb-2 uppercase tracking-wide">
+            {meaning.partOfSpeech}
+          </Text>
+          <Text className="text-card-foreground text-base leading-relaxed">
+            {meaning.definition}
+          </Text>
+          {meaning.example && (
+            <Text className="text-muted-foreground mt-3 italic text-sm leading-relaxed">
+              "{meaning.example}"
+            </Text>
+          )}
           {meaning.synonyms?.length > 0 && (
-            <Text className="text-muted-foreground mt-2">Synonyms: {meaning.synonyms.join(", ")}</Text>
+            <Text className="text-muted-foreground mt-3 text-sm">
+              <Text className="font-medium">Synonyms:</Text> {meaning.synonyms.join(", ")}
+            </Text>
           )}
           {meaning.antonyms?.length > 0 && (
-            <Text className="text-muted-foreground mt-2">Antonyms: {meaning.antonyms.join(", ")}</Text>
+            <Text className="text-muted-foreground mt-2 text-sm">
+              <Text className="font-medium">Antonyms:</Text> {meaning.antonyms.join(", ")}
+            </Text>
           )}
         </View>
       ))}
