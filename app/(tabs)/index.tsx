@@ -1,11 +1,12 @@
-import * as React from 'react';
-import { View, ActivityIndicator, RefreshControl } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import { Button } from '~/components/ui/button';
-import { Text } from '~/components/ui/text';
-import { WordCard } from '~/components/WordCard';
-import { useWordStore } from '~/store/useWordStore';
-import { getRandomWordsWithDefinitions } from '~/lib/api/wordService';
+import * as React from "react";
+import { View, ActivityIndicator, RefreshControl } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import { Button } from "~/components/ui/button";
+import { Text } from "~/components/ui/text";
+import { WordCard } from "~/components/WordCard";
+import { useWordStore } from "~/store/useWordStore";
+import { getRandomWordsWithDefinitions } from "~/lib/api/wordService";
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon } from "react-native-heroicons/outline";
 
 export default function WordsScreen() {
   const store = useWordStore();
@@ -14,18 +15,21 @@ export default function WordsScreen() {
 
   const currentWord = words?.[currentIndex];
 
-  const fetchWords = React.useCallback(async (showLoader = true) => {
-    try {
-      if (showLoader) setLoading(true);
-      setError(null);
-      const newWords = await getRandomWordsWithDefinitions(10);
-      setWords(newWords);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch words');
-    } finally {
-      if (showLoader) setLoading(false);
-    }
-  }, [setLoading, setError, setWords]);
+  const fetchWords = React.useCallback(
+    async (showLoader = true) => {
+      try {
+        if (showLoader) setLoading(true);
+        setError(null);
+        const newWords = await getRandomWordsWithDefinitions(10);
+        setWords(newWords);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch words");
+      } finally {
+        if (showLoader) setLoading(false);
+      }
+    },
+    [setLoading, setError, setWords]
+  );
 
   const fetchNextWords = React.useCallback(async () => {
     if (isFetchingNext) return;
@@ -34,7 +38,7 @@ export default function WordsScreen() {
       const newWords = await getRandomWordsWithDefinitions(10);
       setWords(newWords);
     } catch (err) {
-      console.error('Failed to fetch next words:', err);
+      console.error("Failed to fetch next words:", err);
     } finally {
       setIsFetchingNext(false);
     }
@@ -54,20 +58,25 @@ export default function WordsScreen() {
     }
   }, [currentIndex, words, isLoading, isFetchingNext, fetchNextWords]);
 
+  const handlePrevious = React.useCallback(() => {
+    if (!words?.length) return;
+    useWordStore.setState((state) => ({
+      currentIndex: state.currentIndex === 0 ? state.words.length - 1 : state.currentIndex - 1,
+    }));
+  }, [words]);
+
   const handleNext = React.useCallback(() => {
     if (!words?.length) return;
-    useWordStore.setState(state => ({
-      currentIndex: (state.currentIndex + 1) % state.words.length
+    useWordStore.setState((state) => ({
+      currentIndex: (state.currentIndex + 1) % state.words.length,
     }));
   }, [words]);
 
   return (
     <View className="flex-1 bg-background">
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => fetchWords(true)} />
-        }
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 24 }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => fetchWords(true)} />}
       >
         {error ? (
           <View className="items-center">
@@ -79,23 +88,38 @@ export default function WordsScreen() {
         ) : isLoading && !currentWord ? (
           <ActivityIndicator size="large" className="text-primary" />
         ) : currentWord ? (
-          <WordCard
-            word={currentWord}
-            isBookmarked={false}
-            onBookmarkPress={() => {}}
-          />
+          <>
+            <WordCard word={currentWord} />
+
+            <View className="flex-row justify-between items-center mt-6">
+              <Button
+                variant="outline"
+                className="flex-1 mr-2 shadow shadow-foreground/5"
+                onPress={handlePrevious}
+                disabled={!currentWord}
+              >
+                <View className="flex-row items-center">
+                  <ArrowLeftCircleIcon size={20} stroke="#3B82F6" />
+                  <Text className="ml-2">Previous</Text>
+                </View>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex-1 ml-2 shadow shadow-foreground/5"
+                onPress={handleNext}
+                disabled={!currentWord}
+              >
+                <View className="flex-row items-center">
+                  <Text className="mr-2">Next</Text>
+                  <ArrowRightCircleIcon size={20} stroke="#3B82F6" />
+                </View>
+              </Button>
+            </View>
+          </>
         ) : null}
-        
+
         <View className="h-6" />
-        
-        <Button
-          variant="outline"
-          className="shadow shadow-foreground/5"
-          onPress={handleNext}
-          disabled={!currentWord}
-        >
-          <Text>Next Word</Text>
-        </Button>
       </ScrollView>
     </View>
   );
