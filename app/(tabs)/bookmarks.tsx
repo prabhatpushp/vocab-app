@@ -22,7 +22,7 @@ export default function BookmarksScreen() {
     <View className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
         {bookmarkedWords.map((word) => (
-          <WordCard key={word.id} word={word} isBookmarked={true} onBookmarkPress={() => toggleBookmark(word)} />
+          <WordCard key={word.id} word={word} />
         ))}
       </ScrollView>
     </View>
