@@ -14,7 +14,7 @@ A starting point to help you set up your project quickly and use the common comp
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone <YOUR_GIT_URL>
+   git clone https://github.com/prabhatpushp/vocab-app
    cd vocab-app
    ```
 2. Install the necessary dependencies:
